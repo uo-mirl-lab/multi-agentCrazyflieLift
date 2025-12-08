@@ -18,6 +18,7 @@ Usage:
 
 # Base imports
 import argparse
+import json
 import time
 import numpy as np
 from typing import List
@@ -62,6 +63,22 @@ class CrazyflieHardwareInterface:
         
         self.connected = False
         self.scf = None
+
+        # Load configuration for this drone
+        try:
+            with open(f"./configs/{self.uri.split('/')[-1]}.json", "r") as config_file:
+                self.config = json.load(config_file)
+                print(f"Loaded configuration for {self.uri}: {self.config}")
+        except OSError:
+            try:
+                with open(f"./configs/default.json", "r") as config_file:
+                    self.config = json.load(config_file)
+                    print(f"Using default configuration for {self.uri}: {self.config}")
+            except OSError:
+                print(f"Error: No configuration file found for {self.uri} or default.json")
+                raise RuntimeError("No default configuration file found. Please create one.")
+            
+            print(f"Warning: No configuration found for {self.uri}, using defaults")
         
     def connect(self):
         """Establish connection to the Crazyflie"""
@@ -427,7 +444,7 @@ class HardwareDeploymentController:
                     for i, drone in enumerate(self.drones):
                         hover_thrust = 0.26487
                         # Experimentally, the actual hover thrust is ~0.77 times the mujoco hover thrust
-                        test_hover_thrust = hover_thrust * 0.77
+                        test_hover_thrust = hover_thrust * (drone.config.get("thrust_scale", 0.77))
                         action = np.array([test_hover_thrust, 0.0, 0.0, 0.0])
                         drone.send_action(action)
 
