@@ -4,3 +4,4 @@ __pycache__/
 .vscode
 /code/src/initial_cpu_training/model_manual_step_data/
 /code/src/hardware_model_testing/cache
+/cf
