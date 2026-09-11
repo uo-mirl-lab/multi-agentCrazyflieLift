@@ -3,6 +3,7 @@ mujoco-mjx==3.4.0
 brax==0.13.0
 playground==0.0.5
 flax==0.10.7
+tabulate==0.10.0
 mediapy
 
 --find-links https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
