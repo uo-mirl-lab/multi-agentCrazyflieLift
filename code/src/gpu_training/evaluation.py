@@ -1,15 +1,6 @@
-"""
-Batched target/seed evaluation of a trained (MAPPO) policy: run many
+"""Batched target/seed evaluation of a trained (MAPPO) policy: run many
 (target, seed) rollouts in parallel and report mean return / survival
-stats in a table.
-
-Extracted from the "Test Loaded MAPPO Model for Varying Targets & Seeds"
-cell of MARL_Crazyflie.ipynb. The original functions closed over notebook
-globals (env, jit_inference, NUM_DRONES, PER_AGENT_OBS_DIM) and even
-re-created a fresh `env = CrazyflieEnv()` inside `test_targets_batched`
-(shadowing the notebook's outer `env`); here all of these are passed in
-explicitly.
-"""
+stats in a table."""
 import jax
 import jax.numpy as jnp
 from tabulate import tabulate
@@ -18,28 +9,10 @@ from vec_env_utils import vec_reset_targets, vec_step
 
 
 def test_targets_batched(env, jit_inference, num_drones, per_agent_obs_dim, targets, keys, episode_length=1500):
-    """
-    Run one rollout per (target, key) pair in parallel.
-
-    Parameters
-    ----------
-    env : CrazyflieEnv
-    jit_inference : Callable
-        Deterministic policy fn `(per_agent_obs) -> flat_action_per_agent`,
-        e.g. from `mappo_models.make_deterministic_policy(...)`.
-    num_drones : int
-    per_agent_obs_dim : int
-    targets : jax.Array
-        (num_envs, 3) stacked target positions.
-    keys : jax.Array
-        (num_envs, 2) stacked PRNG keys.
-    episode_length : int
-
-    Returns
-    -------
-    total_rewards, steps : jax.Array, jax.Array
-        Per-environment cumulative reward and steps survived.
-    """
+    """Run one rollout per (target, key) pair in parallel. jit_inference is a
+    deterministic policy fn `(per_agent_obs) -> flat_action_per_agent`, e.g.
+    from `mappo_models.make_deterministic_policy(...)`. Returns per-environment
+    cumulative reward and steps survived."""
     num_envs = len(targets)
 
     states = vec_reset_targets(env, keys, targets)

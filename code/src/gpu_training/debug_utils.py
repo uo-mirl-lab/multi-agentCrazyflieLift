@@ -1,10 +1,5 @@
-"""
-Debug helpers for verifying MJX domain-randomization noise (mass/inertia/
-actuator gain jitter applied on env.reset).
-
-Extracted from the "Crazyflie Config and Helpers" cell of
-MARL_Crazyflie.ipynb.
-"""
+"""Debug helpers for verifying MJX domain-randomization noise (mass/inertia/
+actuator gain jitter applied on env.reset)."""
 import numpy as np
 
 

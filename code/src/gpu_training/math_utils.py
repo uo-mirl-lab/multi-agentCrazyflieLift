@@ -1,29 +1,10 @@
-"""
-Generic JAX math helpers used across the gpu_training environment and MAPPO
-code: clipped Gaussian noise and quaternion utilities.
-
-Extracted from the "Crazyflie Config and Helpers" cell of
-MARL_Crazyflie.ipynb.
-"""
+"""Generic JAX math helpers: clipped Gaussian noise and quaternion utilities."""
 import jax
 import jax.numpy as jnp
 
 
 def clipped_normal(rng, shape, std, std_clip=3.0):
-    """
-    Sample clipped Gaussian noise.
-
-    Parameters
-    ----------
-    rng : jax.Array
-        PRNG key.
-    shape : tuple
-        Output shape.
-    std : float
-        Standard deviation of the underlying normal distribution.
-    std_clip : float
-        Clip samples to +/- std_clip * std.
-    """
+    """Helper function to sample clipped Gaussian noise."""
     noise = jax.random.normal(rng, shape) * std
     return jnp.clip(noise, -std_clip * std, std_clip * std)
 
@@ -56,27 +37,8 @@ def quat_multiply(q1, q2):
 
 
 def add_quat_noise(rng, quat, angle_std=0.01, std_clip=3.0):
-    """
-    Add a small random rotation to a quaternion via axis-angle perturbation.
-
-    Parameters
-    ----------
-    rng : jax.Array
-        PRNG key.
-    quat : jax.Array
-        (..., 4) unit quaternion(s) in [w, x, y, z] format.
-    angle_std : float
-        Standard deviation (radians) of the perturbation angle.
-    std_clip : float
-        Clip the perturbation angle to +/- std_clip * angle_std.
-
-    Returns
-    -------
-    final_quat : jax.Array
-        Perturbed, renormalized quaternion(s).
-    rng : jax.Array
-        Updated PRNG key (split off from the input).
-    """
+    """Adds a small random rotation to a quaternion via axis-angle perturbation,
+    quaternion is (..., 4) in [w, x, y, z] format (unit norm)."""
     rng, angle_rng, axis_rng = jax.random.split(rng, 3)
     angle = clipped_normal(angle_rng, quat.shape[:-1] + (1,), angle_std, std_clip)
 

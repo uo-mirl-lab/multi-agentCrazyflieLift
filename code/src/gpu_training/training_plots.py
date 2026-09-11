@@ -1,13 +1,7 @@
-"""
-Small stateful progress-plotting helpers for the PPO (Brax) and MAPPO
-training loops. Both training loops call a `progress_fn(step, metrics)`
-callback periodically; these classes hold the accumulated plot state
-(instead of the notebook's module-level x_data/y_data/... globals) so
-multiple training runs don't stomp on each other's state.
-
-Extracted from the "PPO Training" and "MAPPO Training" cells of
-MARL_Crazyflie.ipynb.
-"""
+"""Stateful progress-plotting helpers for the PPO (Brax) and MAPPO training
+loops. Both call a `progress_fn(step, metrics)` callback periodically; these
+classes hold the accumulated plot state so multiple training runs don't
+stomp on each other's state."""
 from datetime import datetime
 
 import matplotlib.pyplot as plt

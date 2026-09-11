@@ -1,9 +1,5 @@
-"""
-Helpers for configuring and launching Brax PPO training (the single-agent
-baseline trained against a single-drone CrazyflieEnv).
-
-Extracted from the "PPO Training" cell of MARL_Crazyflie.ipynb.
-"""
+"""Helpers for configuring and launching Brax PPO training (the single-agent
+baseline trained against a single-drone CrazyflieEnv)."""
 import functools
 
 from ml_collections import config_dict
@@ -14,19 +10,10 @@ from training_plots import linear_annealing_lr
 
 
 def default_ppo_params(num_timesteps=60_000_000, learning_rate=None, **overrides):
-    """
-    Build the Brax PPO training config used in the notebook.
-
-    Parameters
-    ----------
-    num_timesteps : int
-    learning_rate : float or Callable, optional
-        Defaults to a linear anneal from 3e-3 to 0.25 * 3e-3 over
-        `num_timesteps` (see `training_plots.linear_annealing_lr`).
-    **overrides
-        Any other `config_dict.create(...)` kwargs to override the defaults
-        (e.g. `num_envs=1024`).
-    """
+    """Build the Brax PPO training config used in the notebook. `learning_rate`
+    defaults to a linear anneal from 3e-3 to 0.25 * 3e-3 over
+    `num_timesteps`; **overrides can override any other config_dict field
+    (e.g. `num_envs=1024`)."""
     if learning_rate is None:
         learning_rate = linear_annealing_lr(3e-3, 0.25 * 3e-3, num_timesteps)
 
@@ -54,24 +41,11 @@ def build_ppo_train_fn(ppo_params, progress_fn=lambda *args: None, policy_hidden
     Build a `functools.partial(ppo.train, ...)`, ready to call with
     `environment=...` and `wrap_env_fn=mujoco_playground.wrapper.wrap_for_brax_training`.
 
-    Parameters
-    ----------
-    ppo_params : config_dict.ConfigDict
-        As returned by `default_ppo_params(...)`.
-    progress_fn : Callable
-        e.g. a `training_plots.PPOProgressPlotter` instance.
-    policy_hidden, value_hidden : tuple of int
-        Hidden layer sizes for the PPO actor/value networks.
-
-    Notes
-    -----
-    This mirrors the original notebook cell's logic exactly, including a
-    quirk: the custom-hidden-size `network_factory` partial below is only
-    actually used if `"network_factory"` is itself a key inside
-    `ppo_params` (it isn't, by default) — otherwise the stock Brax network
-    factory is used and `policy_hidden`/`value_hidden` are silently
-    ignored. Left as-is rather than "fixed" during extraction; worth a
-    second look if you want policy/value hidden sizes to actually apply.
+    Note: the custom-hidden-size `network_factory` below is only actually
+    used if `"network_factory"` is itself a key inside `ppo_params` (it
+    isn't, by default) -- otherwise the stock Brax network factory is used
+    and `policy_hidden`/`value_hidden` are silently ignored. Worth a look if
+    you want the hidden sizes to actually apply.
     """
     training_params = dict(ppo_params)
 

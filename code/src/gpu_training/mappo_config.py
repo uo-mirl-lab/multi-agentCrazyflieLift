@@ -1,12 +1,6 @@
-"""
-Hyperparameter configuration for the custom Multi-Agent PPO (MAPPO) trainer
-in mappo_trainer.py.
-
-Extracted from the "MAPPO Training setup" cell of MARL_Crazyflie.ipynb,
-where these were module-level notebook globals. Bundled into a dataclass so
-the trainer no longer depends on notebook globals, and multiple configs
-(e.g. for sweeps) can coexist.
-"""
+"""Hyperparameter configuration for the custom Multi-Agent PPO (MAPPO) trainer
+in mappo_trainer.py. Bundled into a dataclass so multiple configs (e.g. for
+sweeps) can coexist."""
 from dataclasses import dataclass
 from typing import Tuple
 

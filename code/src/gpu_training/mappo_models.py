@@ -1,11 +1,7 @@
-"""
-Flax model definitions and PPO/MAPPO math helpers: the decentralized
+"""Flax model definitions and PPO/MAPPO math helpers: the decentralized
 Gaussian policy (Actor), centralized value function (CentralizedCritic), the
 pytree train-state wrapper, and small numeric helpers (log-prob, gradient
-clipping).
-
-Extracted from the "MAPPO Training setup" cell of MARL_Crazyflie.ipynb.
-"""
+clipping)."""
 import functools
 from dataclasses import dataclass
 from typing import Tuple
@@ -52,19 +48,8 @@ class Actor(nn.Module):
 
 @functools.partial(jax.jit, static_argnums=(1,))
 def actor_forward(params, apply_fn, per_agent_obs):
-    """
-    Decentralized (per-agent) policy forward pass, sharing parameters
-    across agents.
-
-    Parameters
-    ----------
-    params : Any
-        Actor network parameters.
-    apply_fn : Callable
-        Actor.apply (static for jit).
-    per_agent_obs : jax.Array
-        (batch, n_agents, per_agent_obs_dim)
-    """
+    """Decentralized (per-agent) policy forward pass, sharing parameters
+    across agents. per_agent_obs: (batch, n_agents, per_agent_obs_dim)."""
     B, A, D = per_agent_obs.shape
     flat = per_agent_obs.reshape((B * A, D))
 
@@ -132,14 +117,9 @@ def clip_by_global_norm(updates, max_norm):
 
 
 def make_deterministic_policy(apply_fn, params):
-    """
-    Wrap an Actor's apply_fn/params into a jitted, deterministic
+    """Wrap an Actor's apply_fn/params into a jitted, deterministic
     (mean-action) policy function taking per-agent observations and
-    returning the mean action.
-
-    Mirrors the `inference_fn` pattern used in the notebook both for the
-    PPO test rollout and when loading a saved MAPPO checkpoint.
-    """
+    returning the mean action."""
     def inference_fn(obs_per_agent):
         mean, _ = apply_fn(params, obs_per_agent)
         return mean

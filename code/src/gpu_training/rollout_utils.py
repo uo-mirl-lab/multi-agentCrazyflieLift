@@ -1,12 +1,5 @@
-"""
-Policy rollout + rendering utility used to visualize a trained (or dummy)
-policy in the CrazyflieEnv MJX environment.
-
-Extracted from the "Crazyflie Config and Helpers" cell of
-MARL_Crazyflie.ipynb. Already took its dependencies (env, params, apply_fn)
-as parameters; only the BASE_HOVER_THRUST constant needed pulling in from
-the new constants.py.
-"""
+"""Policy rollout + rendering utility used to visualize a trained (or dummy)
+policy in the CrazyflieEnv MJX environment."""
 import jax
 import jax.numpy as jnp
 import mujoco
@@ -29,34 +22,12 @@ def rollout_policy(
     target=jnp.array([0.0, 0.0, 1.0]),
 ):
     """
-    Roll out a policy (or a dummy hover policy) in `env`, print per-step
-    diagnostics, and render/display the resulting trajectory video.
+    Policy rollout function. Rolls out a policy (or a dummy hover policy) in
+    `env`, prints per-step diagnostics, and renders the resulting video.
 
-    Parameters
-    ----------
-    env : CrazyflieEnv
-    params : Any
-        Policy parameters (ignored if use_dummy_policy=True).
-    apply_fn : Callable
-        - If use_brax_policy=True: a Brax inference function
-          `apply_fn(obs, rng) -> (action, aux)`.
-        - Otherwise: `apply_fn(params, obs_per_agent) -> (mean, log_std)`
-          (a MAPPO Actor.apply).
-    episode_length : int
-    seed : int
-    use_dummy_policy : bool
-        If True, ignore `params`/`apply_fn` and hover in place.
-    use_brax_policy : bool
-        If True, treat `apply_fn` as a jit-ready Brax inference function.
-    print_logs : bool
-    random_reset : bool
-    target : jax.Array
-        Fixed target position used when random_reset=False.
-
-    Returns
-    -------
-    rollout : list[mjx_env.State]
-        The sequence of states visited during the episode.
+    If use_brax_policy=True, apply_fn is a Brax inference fn
+    `apply_fn(obs, rng) -> (action, aux)`; otherwise it's a MAPPO
+    Actor.apply, `apply_fn(params, obs_per_agent) -> (mean, log_std)`.
     """
     jit_reset = jax.jit(
         lambda rng, random_reset, target: env.reset(rng, random_reset=random_reset, target=target),

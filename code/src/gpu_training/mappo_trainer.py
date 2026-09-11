@@ -1,15 +1,6 @@
-"""
-Custom Multi-Agent PPO (MAPPO) trainer: parameter/optimizer initialization,
+"""Custom Multi-Agent PPO (MAPPO) trainer: parameter/optimizer initialization,
 GAE, decentralized-actor/centralized-critic rollout collection (via
-jax.lax.scan, no replay buffer), and the PPO update step.
-
-Extracted from the "MAPPO Training setup" and "MAPPO Training" cells of
-MARL_Crazyflie.ipynb. The original `train()`/`create_train_state()` closed
-over ~20 module-level notebook globals (NUM_ENVS, NUM_DRONES, GAMMA, env,
-...); here everything is threaded through explicitly via an `MAPPOConfig`
-plus the env/dimension arguments returned by
-`vec_env_utils.make_env_and_infer(...)`.
-"""
+jax.lax.scan, no replay buffer), and the PPO update step."""
 import jax
 import jax.numpy as jnp
 import optax
@@ -28,24 +19,10 @@ from vec_env_utils import vec_reset, vec_step
 
 
 def create_train_state(rng, config: MAPPOConfig, per_agent_obs_dim, per_env_obs_dim, action_size_per_drone):
-    """
-    Initialize actor/critic parameters, optimizers, and the PPOTrainState.
-
-    Parameters
-    ----------
-    rng : jax.Array
-    config : MAPPOConfig
-    per_agent_obs_dim : int
-        Observation dimension seen by each drone's (decentralized) actor.
-    per_env_obs_dim : int
-        Full, concatenated observation dimension seen by the centralized critic.
-    action_size_per_drone : int
-        Action dimension for a single drone (e.g. 4: thrust/roll/pitch/yaw).
-
-    Returns
-    -------
-    train_state, actor_module, critic_module
-    """
+    """Initialize actor/critic parameters, optimizers, and the PPOTrainState.
+    per_agent_obs_dim is what each drone's (decentralized) actor sees;
+    per_env_obs_dim is the full, concatenated observation the centralized
+    critic sees."""
     rng1, rng2 = jax.random.split(rng)
 
     actor_module = Actor(hidden_sizes=tuple(config.policy_hidden), action_dim=action_size_per_drone)
@@ -96,28 +73,10 @@ def train(
     num_updates=None,
     progress_fn=lambda *args: None,
 ):
-    """
-    Run the MAPPO training loop.
-
-    Parameters
-    ----------
-    env : CrazyflieEnv
-    config : MAPPOConfig
-    per_env_obs_dim, per_agent_obs_dim, action_dim : int
-        From `vec_env_utils.make_env_and_infer(...)`.
-    action_size_per_drone : int
-        Per-drone action dimension (constants.ACTION_SIZE_PER_DRONE).
-    num_updates : int, optional
-        Overrides config.num_updates if given (e.g. for a short smoke test).
-    progress_fn : Callable[[int, dict], None]
-        Called periodically with (update, metrics), e.g. a
-        `training_plots.MAPPOProgressPlotter` instance.
-
-    Returns
-    -------
-    PPOTrainState
-        Final training state.
-    """
+    """Run the MAPPO training loop and return the final PPOTrainState.
+    per_env_obs_dim/per_agent_obs_dim/action_dim come from
+    `vec_env_utils.make_env_and_infer(...)`; num_updates overrides
+    config.num_updates if given (e.g. for a short smoke test)."""
     num_updates = config.num_updates if num_updates is None else num_updates
 
     rng = jax.random.PRNGKey(config.seed)

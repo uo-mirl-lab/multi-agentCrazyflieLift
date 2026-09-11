@@ -1,12 +1,6 @@
 """
 CrazyflieEnv: MJX (MuJoCo playground) environment for the Crazyflie drone,
 supporting multiple drones and MARL rewards.
-
-This module originally lived only inside MARL_Crazyflie.ipynb's "Crazyflie
-Environment" cell and depended on names defined earlier in the notebook
-(imports + constants + math helpers from the "Crazyflie Config and Helpers"
-cell). Those dependencies are now explicit imports below so this file can be
-used standalone, outside the notebook.
 """
 from ml_collections import config_dict
 import jax
@@ -249,6 +243,9 @@ class CrazyflieEnv(mjx_env.MjxEnv):
             "body_mass": body_mass,
             "body_inertia": body_inertia,
             "actuator_gainprm": actuator_gainprm,
+            # Nominal gravity by default; callers wanting per-episode gravity
+            # randomization (e.g. cf_translator_env.py) can overwrite this key.
+            "gravity": self._mjx_model.opt.gravity,
         }
 
         reward = jnp.zeros(())
@@ -270,6 +267,10 @@ class CrazyflieEnv(mjx_env.MjxEnv):
             body_mass = state.info["body_mass"],
             body_inertia = state.info["body_inertia"],
             actuator_gainprm = state.info["actuator_gainprm"],
+            # Optional per-episode gravity override (see reset() above)
+            opt = self._mjx_model.opt.replace(
+                gravity = state.info.get("gravity", self._mjx_model.opt.gravity)
+            ),
         )
 
         # Clip flat action (by default done via XML actuators but we are also recording action history)

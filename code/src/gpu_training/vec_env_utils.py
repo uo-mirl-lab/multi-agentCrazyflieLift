@@ -1,33 +1,14 @@
-"""
-Vectorized (multi-environment) reset/step helpers used by both the custom
+"""Vectorized (multi-environment) reset/step helpers used by both the custom
 MAPPO trainer and target/seed evaluation, plus a helper to construct an env
-and infer its observation/action dimensions.
-
-Extracted from the "MAPPO Training setup" and "Test Loaded MAPPO Model for
-Varying Targets & Seeds" cells of MARL_Crazyflie.ipynb. The originals closed
-over a module-level `env` global; here `env` is passed explicitly to each
-jitted function (as a static arg).
-"""
+and infer its observation/action dimensions."""
 import functools
 
 import jax
 
 
 def make_env_and_infer(env_factory):
-    """
-    Build an environment via `env_factory()` and infer observation/action
-    dimensions from a single reset.
-
-    Parameters
-    ----------
-    env_factory : Callable[[], CrazyflieEnv]
-        Zero-arg factory returning a fresh environment instance, e.g.
-        `lambda: CrazyflieEnv()`.
-
-    Returns
-    -------
-    env, per_env_obs_dim, per_agent_obs_dim, action_dim
-    """
+    """Build an environment via `env_factory()` and infer observation/action
+    dimensions from a single reset."""
     env = env_factory()
     key = jax.random.PRNGKey(0)
     st = env.reset(key)
@@ -51,15 +32,8 @@ def vec_reset(env, rngs):
 
 @functools.partial(jax.jit, static_argnums=0)
 def vec_step(env, states, actions):
-    """
-    Step env(s).
-
-    Parameters
-    ----------
-    env : CrazyflieEnv
-    states : pytree of length num_envs
-    actions : flattened (num_envs, action_dim)
-    """
+    """Step env(s). `states` is a pytree of length num_envs, `actions` is
+    flattened (num_envs, action_dim)."""
     return jax.vmap(lambda s, a: env.step(s, a))(states, actions)
 
 

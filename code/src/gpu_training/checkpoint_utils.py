@@ -1,12 +1,5 @@
-"""
-Save/load/archive helpers for Flax checkpoint directories, used to persist
-and restore the MAPPO PPOTrainState.
-
-Extracted from the "Save Model" / "Download Saved Model" / "Upload Model
-Checkpoint and Import State" cells of MARL_Crazyflie.ipynb. Colab-specific
-upload/download glue (google.colab.files) is left in the notebook; only the
-portable save/restore/archive logic lives here.
-"""
+"""Save/load/archive helpers for Flax checkpoint directories, used to persist
+and restore the MAPPO PPOTrainState."""
 import os
 import shutil
 

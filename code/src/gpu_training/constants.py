@@ -1,11 +1,5 @@
-"""
-Physical, training, and reward/observation constants shared by the GPU
-(MJX/Brax) Crazyflie training pipeline.
-
-Extracted from the "Crazyflie Config and Helpers" cell of
-MARL_Crazyflie.ipynb so that crazyflie_env.py (and the other gpu_training
-modules) do not depend on the notebook's global namespace.
-"""
+"""Physical, training, and reward/observation constants shared by the GPU
+(MJX/Brax) Crazyflie training pipeline."""
 import os
 
 import jax.numpy as jnp
@@ -14,11 +8,7 @@ import numpy as np
 # ---------------------------------------------------------------------------
 # Scene paths
 # ---------------------------------------------------------------------------
-# Default paths assume the assets_mjx folder lives alongside this file, as it
-# does in this repo. In Colab, the notebook instead sets these after
-# mounting Google Drive or unzipping an assets_mjx.zip upload — override
-# these module attributes (or pass `scene_path=` explicitly to
-# CrazyflieEnv(...)) to match that runtime.
+# Assumes assets_mjx lives alongside this file, as it does in this repo.
 _ASSETS_DIR = os.path.join(os.path.dirname(__file__), "assets_mjx", "bitcraze_crazyflie_2")
 
 SCENE_PATH_1_DRONE = os.path.join(_ASSETS_DIR, "scene.xml")
@@ -68,3 +58,4 @@ _RL_MODELS_GPU_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "rl_mod
 
 PPO_MODEL_SAVE_PATH = os.path.join(_RL_MODELS_GPU_DIR, "PPO_brax_model_checkpoint.pkl")
 MAPPO_CHECKPOINT_DIR = os.path.join(_RL_MODELS_GPU_DIR, "MAPPO_model_checkpoint")
+TRANSLATOR_MODEL_SAVE_PATH = os.path.join(_RL_MODELS_GPU_DIR, "translator_brax_model_checkpoint.pkl")
