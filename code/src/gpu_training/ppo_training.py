@@ -2,7 +2,10 @@
 baseline trained against a single-drone CrazyflieEnv)."""
 import functools
 
+import jax
 from ml_collections import config_dict
+from brax.io import model as brax_model
+from brax.training.acme import running_statistics
 from brax.training.agents.ppo import networks as ppo_networks
 from brax.training.agents.ppo import train as ppo
 
@@ -68,3 +71,23 @@ def build_ppo_train_fn(ppo_params, progress_fn=lambda *args: None, policy_hidden
         network_factory=network_factory,
         progress_fn=progress_fn,
     )
+
+
+def load_ppo_policy(checkpoint_path, env, normalize_observations=True):
+    """
+    Reconstruct a frozen `make_inference_fn` from a checkpoint saved via
+    `brax.io.model.save_params` (e.g. constants.PPO_MODEL_SAVE_PATH), instead
+    of training one. Returns (make_inference_fn, params), same as
+    build_ppo_train_fn(...)'s train_fn -- so `make_inference_fn(params,
+    deterministic=True)` works the same either way.
+
+    Rebuilds the same stock-hidden-size network build_ppo_train_fn actually
+    trains (see its docstring note), since the network architecture isn't
+    itself part of the saved checkpoint.
+    """
+    obs_size = env.reset(jax.random.PRNGKey(0)).obs.shape[-1]
+    normalize_fn = running_statistics.normalize if normalize_observations else (lambda x, y: x)
+    network = ppo_networks.make_ppo_networks(obs_size, env.action_size, preprocess_observations_fn=normalize_fn)
+    make_inference_fn = ppo_networks.make_inference_fn(network)
+    params = brax_model.load_params(checkpoint_path)
+    return make_inference_fn, params
