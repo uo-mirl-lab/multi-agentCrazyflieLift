@@ -64,6 +64,23 @@ class TranslatorDomainRandomization:
     # e.g. a propeller/motor not pushing quite where it should.
     gravity_tilt_std: float = 0.05
 
+    @classmethod
+    def nominal(cls):
+        """No extra randomization beyond CrazyflieEnv's own baseline reset()
+        noise -- gap gains pinned to 1.0 (no mismatch), everything else 0.
+        Useful as a sanity check that a wrapped policy still flies under the
+        same conditions the low-level policy was trained under."""
+        return cls(
+            thrust_gap_range=(1.0, 1.0),
+            torque_gap_range=(1.0, 1.0),
+            mass_noise_std=0.0,
+            inertia_noise_std=0.0,
+            actuator_noise_std=0.0,
+            wind_force_std=0.0,
+            wind_torque_std=0.0,
+            gravity_tilt_std=0.0,
+        )
+
 
 def _tilt_gravity(rng, gravity, tilt_std):
     """Rotate `gravity` by a small random angle about a random axis perpendicular to it (Rodrigues' formula)."""
