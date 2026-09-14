@@ -222,9 +222,12 @@ class CrazyflieTranslatorEnv(mjx_env.MjxEnv):
         inertia_noise = clipped_normal(inertia_rng, base_model.body_inertia.shape, std=1.0, std_clip=3.0)
         actuator_noise = clipped_normal(actuator_rng, base_model.actuator_gainprm.shape, std=1.0, std_clip=3.0)
 
-        low_info["body_mass"] = base_model.body_mass * (1 + dr.mass_noise_std * mass_noise)
-        low_info["body_inertia"] = base_model.body_inertia * (1 + dr.inertia_noise_std * inertia_noise)
-        low_info["actuator_gainprm"] = base_model.actuator_gainprm * (1 + dr.actuator_noise_std * actuator_noise)
+        # Layer on top of (not replace) the noise CrazyflieEnv.reset() already
+        # sampled -- with std=0.0 (TranslatorDomainRandomization.nominal())
+        # this is a true no-op, leaving CrazyflieEnv's own noise untouched.
+        low_info["body_mass"] = low_info["body_mass"] * (1 + dr.mass_noise_std * mass_noise)
+        low_info["body_inertia"] = low_info["body_inertia"] * (1 + dr.inertia_noise_std * inertia_noise)
+        low_info["actuator_gainprm"] = low_info["actuator_gainprm"] * (1 + dr.actuator_noise_std * actuator_noise)
 
         # --- Constant per-episode wind-like force/torque at the drone body ---
         wind_force = clipped_normal(wind_force_rng, (3,), std=dr.wind_force_std, std_clip=3.0)
