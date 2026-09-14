@@ -37,7 +37,11 @@ class PPOProgressPlotter:
         self.y_data.append(metrics["eval/episode_reward"])
         self.y_dataerr.append(metrics["eval/episode_reward_std"])
 
-        plt.xlim([0, self.num_timesteps * 1.25])
+        # Brax often overshoots num_timesteps (its epoch size is
+        # batch_size*unroll_length*num_minibatches, independent of
+        # num_envs, so a small num_timesteps can round up a lot) -- stretch
+        # the axis instead of silently cutting the curve off.
+        plt.xlim([0, max(self.num_timesteps * 1.25, num_steps * 1.05)])
         plt.ylim(list(self.y_lim))
         plt.xlabel("# environment steps")
         plt.ylabel("reward per episode")

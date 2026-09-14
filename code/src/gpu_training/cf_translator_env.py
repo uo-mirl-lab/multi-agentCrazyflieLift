@@ -84,6 +84,19 @@ def _tilt_gravity(rng, gravity, tilt_std):
     return g_rot
 
 
+def _remap_scale(action, scale_min, scale_max):
+    """Map a raw policy output (Brax's tanh_normal actions are bounded to
+    (-1, 1)) to [scale_min, scale_max], with 0 mapping to 1.0 (no
+    correction). A plain clip(action, scale_min, scale_max) would collapse
+    every negative action to scale_min and make anything above 1.0
+    unreachable -- this keeps the full range reachable and keeps an
+    untrained (near-zero-mean) policy starting near "no correction" instead
+    of near "zero everything out"."""
+    pos = 1.0 + action * (scale_max - 1.0)
+    neg = 1.0 + action * (1.0 - scale_min)
+    return jnp.clip(jnp.where(action >= 0, pos, neg), scale_min, scale_max)
+
+
 class CrazyflieTranslatorEnv(mjx_env.MjxEnv):
     """High-level "translator" environment wrapping a frozen low-level hover policy."""
 
@@ -92,7 +105,7 @@ class CrazyflieTranslatorEnv(mjx_env.MjxEnv):
         low_level_inference_fn: Callable,
         scene_path: str = SCENE_PATH_1_DRONE,
         history_len: int = 4,
-        scale_range: Tuple[float, float] = (0.0, 2.5),
+        scale_range: Tuple[float, float] = (0.5, 2.0),
         randomization: Optional[TranslatorDomainRandomization] = None,
         randomize_gravity: bool = True,
         drone_body_name: str = "cf2",
@@ -254,7 +267,7 @@ class CrazyflieTranslatorEnv(mjx_env.MjxEnv):
         translator's action (and the hidden episode gap gain), step the
         wrapped low-level env, and update the translator's own history obs.
         """
-        scale = jnp.clip(action, self.scale_min, self.scale_max)
+        scale = _remap_scale(action, self.scale_min, self.scale_max)
 
         low_info = state.info["low_level_info"]
         low_metrics = state.info["low_level_metrics"]

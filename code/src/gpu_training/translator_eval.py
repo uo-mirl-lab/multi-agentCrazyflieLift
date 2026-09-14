@@ -19,9 +19,11 @@ from vec_env_utils import vec_reset, vec_step
 def identity_scale_policy(obs, rng):
     """The "no correction" baseline: always scales the low-level policy's raw
     action by 1.0. Same (obs, rng) -> (action, extras) signature as a Brax
-    inference_fn, so it's a drop-in for `translator_fn` below."""
+    inference_fn, so it's a drop-in for `translator_fn` below. Returns
+    raw action 0 (not scale 1) -- CrazyflieTranslatorEnv.step() maps a raw
+    action of 0 to a scale of 1.0 (see cf_translator_env._remap_scale)."""
     del obs, rng
-    return jnp.ones(4), None
+    return jnp.zeros(4), None
 
 
 def rollout_batch(env, apply_fn, num_seeds, episode_length, base_seed=0, target=None):
